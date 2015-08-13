@@ -1,0 +1,7 @@
+use lowbid_DB;
+
+UPDATE gameplay SET bid_ID=NULL;
+
+UPDATE gameplay SET bid_price=NULL;
+
+SELECT * FROM gameplay;

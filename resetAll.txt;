@@ -1,0 +1,5 @@
+source resetProductTable.txt;
+
+source resetUserTable.txt;
+
+TRUNCATE TABLE gameplay;
