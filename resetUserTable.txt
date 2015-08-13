@@ -1,0 +1,12 @@
+USE lowbid_DB;
+
+ALTER TABLE user DROP array_serial_;
+ALTER TABLE user DROP array_serial_1;
+ALTER TABLE user DROP array_serial_2;
+ALTER TABLE user DROP array_serial_3;
+ALTER TABLE user DROP array_serial_4;
+ALTER TABLE user DROP array_serial_5;
+ALTER TABLE user DROP array_serial_6;
+
+SELECT * FROM user;
+

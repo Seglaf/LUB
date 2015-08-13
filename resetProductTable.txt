@@ -1,0 +1,11 @@
+use lowbid_DB;
+
+UPDATE product SET winning_bid=NULL; 
+
+UPDATE product SET selected_bids=NULL;
+
+UPDATE product SET user_bid_count=0;
+
+UPDATE product SET sold='NO';
+
+SELECT * FROM product;

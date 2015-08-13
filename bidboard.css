@@ -1,0 +1,100 @@
+.center-x{
+
+	text-align: center;
+}
+
+.center-y{
+
+	vertical-align: middle;
+}
+
+.btn-info{
+
+	background-color: #CD69C9 !important;
+	border-color: #CD69C9 !important;
+}
+
+#productInfoBody{
+
+	background-color: #F0FFFF;
+}
+
+@-moz-document url-prefix() {
+
+	fieldset { display: table-cell; }
+
+}
+
+.myButton{
+
+	width: 100px;
+}
+
+#productInfo{
+
+	margin-left: 5%;
+
+}
+
+
+#resultBox{
+/*
+	display: inline;
+	margin-left: 20%;
+*/
+}
+
+#entiregame div{
+/*
+	margin-left: 10%;
+	float: left;
+*/
+}
+
+.sharp{
+
+	border-radius: 0px;
+
+}
+
+#results{
+
+	width: 25%;
+	margin-left: 3%;
+}
+
+.announceLUB{
+
+	margin-top: 36%;
+	background-color: green;
+	-webkit-animation-delay: 3s;
+	animation-delay: 3s;
+}
+
+.missedLUB{
+
+	margin-top: 36%; /*FIGURE THIS OUT!!!*/
+	background-color: lightgreen;
+	-webkit-animation-delay: 3s;
+	animation-delay: 3s;
+}
+
+.annouceHUB{
+
+	background-color: orange;
+	-webkit-animation-delay: 2s;
+	animation-delay: 2s;
+}
+
+.annouceNUB{
+
+	background-color: red;
+	-webkit-animation-delay: 1s;
+	animation-delay: 1s;
+}
+
+.loginTitle{
+
+	margin-bottom: 10%;
+}
+
