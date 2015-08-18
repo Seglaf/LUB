@@ -17,6 +17,17 @@
 	<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.min.js"></script>
 	<script type="text/javascript">
 
+
+	function makeAccount(){
+
+		$('#makeAccount').show();
+	}	
+
+	function login(){
+
+		$('#makeAccount').hide();
+	}
+
 	function updateUserBidCount(){
 		var userBids = announceValues();
 
@@ -166,14 +177,19 @@
 				data : { productID : prod, userBids : userBidArray},
 				success : function(formHandlerData){
 					if(formHandlerData.oldLUB != null){
+alert("bids found");
 
-					document.getElementById(formHandlerData.oldLUB).className = "myButton btn sharp btn-warning";
+						document.getElementById(formHandlerData.oldLUB).className = "myButton btn sharp btn-warning disabled";
 
-}
+                                        }
+
+
+//                         alert("BIDS SUBMITTED");
 
 					alert(formHandlerData.test);
 					if(formHandlerData.notEnuffTokens != null){
 
+						
 					}else{
 						document.getElementById('bidTokens').innerHTML = formHandlerData.bidTokens;//ADD TO ABSTRACT FUNCTION???
 					}

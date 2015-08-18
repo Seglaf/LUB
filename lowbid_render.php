@@ -141,11 +141,15 @@ class render_product{
 		$total_rows = ceil($total_elements / 10);
 		$element_count = 1;
 		echo "<div class='col-md-7'>";
-		if($this->query_product_value("user_bid_count") == $this->query_product_value("bid_count")){
+		if($this->query_product_value("user_bid_count") == $this->query_product_value("bid_count") && $this->user_ID != NULL){
+			$winner = $this->db->prepare("SELECT winner FROM product WHERE product_ID=$this->selected_product_ID");
+			$winner->execute();
+			$winner = $winner->fetchColumn();
+
 		    echo "<div class='center-y row'>
 			<div class='col-md-4'>
 				<div class='animated bounceInDown container panel panel-warning' style='z-index:1000; position: fixed; '>
-			<h2> WINNER IS $this->username </h2>
+			<h2> WINNER IS $winner </h2>
 			</div>
 			</div>
 			</div> ";			
@@ -210,6 +214,8 @@ class render_product{
 
 	private function render_header(){
 	//add image to account tab
+		echo "<div class='navbar navbar-default'>";
+		echo " <div class='container-fluid'>";
 		echo "	<div id='navbar' class='navbar-collapse collapse'>
 			    <ul class='nav navbar-nav'>
 		<!-- CHANGE HREFS LATER!!! MAKE SURE THIS NAVBAR MAKES SENSE-->
@@ -218,30 +224,55 @@ class render_product{
 			      <li class='active'><a href='/lowbid/lowbid_buy_bids.php'>Buy Bids</a></li>
 			      <li class='active'><a href='/lowbid/lowbid_earn_bids.php'>Earn Bids</a></li>
 			      <li class='active'><a href='/lowbid/lowbid_product_sell.php'>Sell</a></li>
-			      <li class='active'><a href='/lowbid/lowbid_how_to.php'>How to</a></li>
-			      <li class='active'><a href='/lowbid/lowbid_account.php'>Account</a></li>
-			      <li class='active'><a href='/lowbid/lowbid_logout.php'>logout</a></li>
-			      <li class='active'><a href='/lowbid/lowbid_search.php'>Search</a></li>
-				  </ul>
-				</div>
-			      <//li>
-		</div>";
-		if($this->username == NULL){
+			      <li class='active'><a href='/lowbid/lowbid_how_to.php'>How to</a></li>";
+		if($this->user_ID != NULL){
+		echo "<li class='active'><a href='/lowbid/lowbid_account.php'>Account <small>$this->username </small></a></li>
+			      <li class='active'><a href='/lowbid/lowbid_logout.php'>logout</a></li>";
+		}else{
 
-		echo "<div id='notLoggedIn' class='container'>
+			echo "<li class='active'><a href='/lowbid/lowbid_site_login.php'>Login</a></li>";
+		}
+
+		echo  "<li class='active'><a href='/lowbid/lowbid_search.php'>Search</a></li>
+				  </ul>
+			  </div>
+		</div>";
+		echo "</div>";
+		if($this->user_ID == NULL){
+//Login prompt for guest accessing user pages
+		echo "<div id='loginPrompt notLoggedIn' class='container'>
 		    <div class='row vertical-center-row'>
 			<div class=''>
 			    <div class='row'>
 				<div class='container panel panel-warning col-xs-4 col-xs-offset-4' style='margin-top: 8%; height:50%; z-index:1000; position: fixed; '>
 		<div class='panel-heading text-center'><br/>YOU MUST LOGIN TO BID<br/><br/></div>
 		<div class='panel-body'></div>
-		<div class='form animated bounceInDown'>
-			<h2 >Lowbid Login</h2>
+		<div class='form'>
 			<form id='loginForm' action='/lowbid/lowbid_login.php' method='POST' >
+			<div class='row'>
+				<input  class='col-md-4 col-md-offset-4' type='text' name='username' placeholder='Username' /> 
+			</div>
+
+			<div class='row'>
+				<input class='col-md-4 col-md-offset-4' type='password' name='password' placeholder='Password' /> 	
+			</div>
+			<div class='row'>
+				<input class='col-md-4 col-md-offset-4 btn btn-primary' type='submit' id='loginButton' value='Login'  >	
+			</div>
+			</form>
+
+			<h5 class='text-center'><a onclick='makeAccount()' href='#' >Create an Account</a></h5>
+			
+		<div id='makeAccount' class='form animated bounceInUp' style='display: none;'>
+			<form id='accountForm' action='/lowbid/lowbid_create_account.php' method='POST' >
 				<input type='text' name='username' placeholder='Username' /> 
 				<input type='password' name='password' placeholder='Password' /> 
-				<input type='submit' id='loginButton' value='Login'  >
+				<input type='password' name='securePassword' placeholder='Repeat Password' /> 
+				<input type='text' name='email' placeholder='Email' />
+				<input class='btn btn-success' type='submit' id='loginButton' value='Create Account'  >
+				
 			</form>
+		</div>
 
 		</div>
 	</div>				
@@ -273,19 +304,21 @@ class render_product{
 		echo "<div class='sideProductDisplay'>"; //possibly add 'row' to class,  id='sideProductDisplay' >";
 		if($this->user_ID != NULL){
 
-			echo "<div id='userAccountDisplay' class='page-header panel panel-default'>";
+			echo "<div class='panel'>";
+			echo "<div class='panel-body'>";	
 			echo "<h2> " . $this->query_from('user', 'username') . " <small> <a href='/lowbid/lowbid_logout.php'>LOGOUT</a> </small> </h2>";
 			echo "<h3> <small> BID TOKENS: <span id='bidTokens'>$user_token_count</span> </small></h3>";	
 			echo "<h4> <small> HUBs OWNED: <span id='HUBCount'> </span> </small></h4>";
 			echo "<h4> <small> NUBs OWNED: <span id='NUBCount'> </span> </small></h4>";
 			echo "<h4> <small> LUB OWNED: <span id='LUBOwned'> </span> </small></h4>";
 			echo "</div>";
+			echo "</div>";
 		}
 		echo "<div class='row'>";
 		foreach($array_display as $prod){
 			echo "<a class='' href='/lowbid/lowbid_product.php/?product=$prod'>";
 			echo "<div id='product_$prod' class='col-md-4 panel panel-default'>";
-			echo "	<div class='panel-body btn-block hero-feature thumbnail' syle='border-color: none !important;'>";
+			echo "	<div class='btn-block hero-feature thumbnail' syle='border-color: none !important;'>";
 							
 			echo	"<img src='http://placehold.it/800x500' alt=''>
 					LOOK AT PRODUCT $prod
@@ -297,7 +330,7 @@ class render_product{
 		echo "</div>";
 		echo "</div>";
 	}	
-
+ 
 	private function select_random_products(&$array_display){
 	
 		#instead of all random make some relative to the popularity shown in the bid, or bids that are close to closing, or bids that the user has invested in <---- THIS ONE FOR SURE.	
@@ -314,7 +347,6 @@ class render_product{
 			array_push($array_display, $rand_product);
 			$this->select_random_products($array_display);
 		}
-
 	}
 
 	private function render_user_info(){
@@ -334,7 +366,6 @@ class render_product{
 		$query = $this->db->prepare("SELECT selected_bids FROM product WHERE product_ID='" . $this->selected_product_ID . "';");
 		$query->execute();
 		$this->user_previous_bids = unserialize($query->fetchColumn());
-
 	}
 
 	private function query_product_value($column){

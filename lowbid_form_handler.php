@@ -70,25 +70,54 @@ class SUBMIT_BID{
 //NEW GAMEPLAY TABLE FUNCTION WORKZONE====================================
 	private function record_bid($user_bid){
 //USE [] instead of ARRAY_PUSH
+		if($this->bid_type == "NUB"){
+
+			$query = $this->db->prepare("UPDATE gameplay SET bid_type='NUB' WHERE bid_price=$user_bid AND product_ID=$this->selected_product_ID;");
+		}
+
 
 		$query = $this->db->prepare("INSERT INTO gameplay (bid_ID, bid_price, bid_type, user_ID, product_ID, username) VALUES('$this->bid_ID', $user_bid, '$this->bid_type', '$this->user_ID', $this->selected_product_ID, '$this->username' );"); //$this->bid_ID, $this->bid_price, $this->bid_type, $this->user_ID);");
 		$query->execute();
 	}
 
+	private function LUB_gameplay_preconditions(){
+
+		$query = $this->db->prepare("SELECT * FROM gameplay WHERE user_ID='$this->user_ID' AND product_ID=$this->selected_product_ID AND bid_price IN '$this->user_bids';");
+		$query->execute();
+		if(!($query->fetchColumn())){
+
+	//		$this->test = "YOU HAVE ALREADY PLACED ONE OF THESE BETS"; 
+		}
+	}
+
 
 	private function LUB_gameplay(){
 //NOW CORRECT USER RENDER.PHP
+		$this->LUB_gameplay_preconditions();		
 
 		$user_bid_count = $this->query_product_value('user_bid_count');
 		$bid_count = $this->query_product_value('bid_count');
 		$this->range_min = $this->query_product_value('range_min');
-
-		$user_bid_count += sizeof($this->user_bids);
+		$user_bid_count += sizeof($this->user_bids);//change this variable name that is being added to, doesn't make much sense
 		$this->progress = (($user_bid_count / $bid_count) * 100); //ONLY PROGRESS UPDATE FOR JSON -> AJAX
 		$this->is_capped = $this->check_cap($user_bid_count, $bid_count); 	
 
+		$new_game = $this->db->prepare("SELECT bid_ID FROM gameplay WHERE product_ID=$this->selected_product_ID LIMIT 1");
+		$new_game->execute();
+		$new_game = $new_game->fetchColumn();
+		if(!($new_game)){
+			
+			$new_game = true;
+		}else{
+
+			$new_game = false;
+		}
+		$this->old_LUB = NULL;
+
+		$loopArray = array();
 		foreach($this->user_bids as $user_bid){
 
+			array_push($loopArray, $user_bid);
 			$this->bid_ID = 'box_' . intval($user_bid / $this->range_min);
 			//$price_count = $this->db->prepare("SELECT COUNT(*) FROM gameplay WHERE product_ID=$this->selected_product_ID AND bid_ID='$this->bid_ID';");
 			//$price_count->execute();
@@ -100,23 +129,24 @@ class SUBMIT_BID{
 			
 				$this->bid_type = 'NUB';
 				$this->ID_NUBs[] = $this->bid_ID;
+				$query = $this->db->prepare("UPDATE gameplay SET bid_type='NUB' WHERE bid_type='HUB' AND bid_price=$user_bid AND product_ID=$this->selected_product_ID;");
+				$query->execute();
 
 				if($price_count == 1){
 //IF FOR LUB EXISTENCE, IF == 1 signifies a LUB or HUB is being KILLED
 					$query = $this->db->prepare("SELECT bid_type FROM gameplay WHERE bid_type='LUB' AND bid_price=$user_bid AND product_ID=$this->selected_product_ID;");
 					$query->execute();
 					$is_LUB = $query->fetchColumn();
-					if(!($is_LUB)){
-
+					if(!($is_LUB)){ //mysql returns false if nothing is found
+//===========================================MAKE SEPERATE FUNCTION=================
 						$query = $this->db->prepare("SELECT MIN(bid_price) FROM gameplay WHERE bid_type='HUB' AND product_ID=$this->selected_product_ID;");
 						$query->execute();
 						$lowest_HUB = $query->fetchColumn();
 						$query = $this->db->prepare("UPDATE gameplay SET bid_type='LUB' WHERE bid_price=$lowest_HUB product_ID=$this->selected_product_ID;");	
 						$query->execute();
 
-					
-					}
-					
+//==========================================^^^^^^^^^^MAKE SEPERATE FUNCTION ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^===================================					
+					}			
 				}	
 
 			}else{
@@ -132,27 +162,34 @@ class SUBMIT_BID{
 					$this->bid_type = 'LUB';	
 					$this->ID_LUB = $this->bid_ID;
 					$this->found_LUB = true;
+
 					$query = $this->db->prepare("SELECT bid_ID FROM gameplay WHERE bid_type='LUB' AND product_ID=$this->selected_product_ID;");
 					$query->execute();
+
 					$this->old_LUB = $query->fetchColumn();
+					if($new_game){
+					
+						$this->old_LUB = NULL;
+					}
 					$query = $this->db->prepare("UPDATE gameplay SET bid_type='HUB' WHERE bid_type='LUB' and product_ID=$this->selected_product_ID;");
 					$query->execute();
 				}else{
 
 					$this->bid_type = 'HUB';
 					$this->ID_HUBs[] = $this->bid_ID;
+		//			$this->old_LUB = NULL;
 				}
 
 			}
 
 			$this->record_bid($user_bid);//MORE OR LESS PARAMETERS??
 		}
-		
-		$this->deduct_tokens($user_bid_count, $bid_count);
+$this->test = $loopArray;	
+		$this->deduct_tokens(sizeof($this->user_bids), $bid_count);
 		$this->generate_game_results();
 
 
-//FIX!!!!	
+//FIX!!!! SEPERATE FUNCTION====================================================	
 		if($user_bid_count == $bid_count){
 
 			$query = $this->db->prepare("UPDATE product SET sold='YES' WHERE product_ID=$this->selected_product_ID");
@@ -164,6 +201,7 @@ class SUBMIT_BID{
 
 		$query = $this->db->prepare("UPDATE product SET user_bid_count=$user_bid_count WHERE product_ID=$this->selected_product_ID;");
 		$query->execute();
+
 	}
 
 

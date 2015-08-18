@@ -7,6 +7,19 @@
 <link rel="stylesheet" type="text/css" href="bidboard.css">
 
 
+<script type="text/javascript">
+
+	function makeAccount(){
+
+		$('#makeAccount').show();
+	}	
+
+	function login(){
+
+		$('#makeAccount').hide();
+	}
+
+</script>
 
 </head>
 
