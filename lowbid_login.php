@@ -2,10 +2,9 @@
 
 #This class will need continued security reinforcement
 #Right now it is at a bear minimum for functionality purposes
-
 class login{
 
-	private $username = "root";
+	private $dbuser = "root";
 	private $dbname = "lowbid_DB";
 	private $pwd = "!jntmuffins4data";
 
@@ -13,19 +12,51 @@ class login{
 	private $user_name;
 	private $user_pwd;	
 
-	function __construct(){
+	private $username;
+	private $password;
+	private $secure_password;
+	private $email;
 
-		$this->user_name = $_POST['username'];
-		$this->user_pwd = $_POST['password'];
+	function __construct(){
+	session_start();
+	session_destroy();
+
+			$this->user_name = $_POST['username'];
+			$this->user_pwd = $_POST['password'];
+//		$type = $_GET['action'];
+
 		$this->connect_lowbid_DB();
-		$this->security_check();
+
+	/*	if($type == 'createAccount'){
+
+			$this->username = $_POST['username'];
+			$this->password = $_POST['password'];
+			$this->secure_password = $_POST['securePassword'];
+			$this->email = $_POST['email'];	
+			$this->create_account();	
+		}else{*/
+			$this->security_check();
+	//	}
 	}
 
 	private function connect_lowbid_DB(){
 
 	#	$this->db = new PDO(self::$dbname, self::$user, self::$pwd);
-		$this->db = new PDO('mysql:host=localhost;dbname=' . $this->dbname . ';charset=utf8', $this->username, $this->pwd);
+		$this->db = new PDO('mysql:host=localhost;dbname=' . $this->dbname . ';charset=utf8', $this->dbuser, $this->pwd);
 		#create exception/throw for later control over login procedure
+	}
+
+	private function create_account(){
+	
+		if($password != $secure_password){
+
+			echo "<h2> PLEASE MAKE SURE YOU RETYPED YOUR PASSWORD CORRECTLY </h2>";
+			exit();
+		}else{
+
+			$query = $this->db->prepare("INSERT INTO user (username, password, email) VALUES ($this->username, $this->password, $this->email);");	
+			$query->execute();
+		}
 	}
 
 	private function security_check(){

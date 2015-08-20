@@ -1,3 +1,4 @@
+
 use lowbid_DB;
 
 UPDATE product SET winning_bid=NULL; 
@@ -10,4 +11,5 @@ UPDATE product SET sold='NO';
 
 UPDATE product SET winner=NULL;
 
+SELECT * FROM user;
 SELECT * FROM product;

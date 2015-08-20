@@ -1,3 +1,13 @@
+h3{
+
+	font-size: 1.4em;
+}
+
+.fixed{
+
+	position: fixed;
+}
+
 
 /*========================================================*/
 /*
@@ -205,6 +215,12 @@ h2{
 	background-color: #CD69C9 !important;
 	border-color: #CD69C9 !important;
 }
+
+.progress-bar-info{
+
+	background-color: #CD69C9 !important;
+}
+
 
 #productInfoBody{
 

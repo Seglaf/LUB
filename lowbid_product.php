@@ -10,12 +10,22 @@
 <link rel="stylesheet" type="text/css" href="/lowbid/animation.css">
 <link rel="stylesheet" type="text/css" href="/lowbid/sidedisplay.css">
 <link rel="stylesheet" type="text/css" href="/lowbid/lowbid_stylesheet.css">
-
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+	
 <!--/lowbid/lowbid_form_handler.php/?product=" . $this->selected_product_ID . "-->
 	<title>Product Bid</title> 
 	<script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
 	<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.min.js"></script>
 	<script type="text/javascript">
+
+
+	function unlockSubmit(){
+
+		document.getElementById("submitBidForm").disabled = false;
+		document.getElementById("submitBidForm_2").disabled = false;
+	}
 
 
 	function makeAccount(){
@@ -49,7 +59,6 @@
 	}
 
 	function attemptClearBoard(){
-	alert("YOYO");	
 		var bids = document.querySelectorAll("#bidform div[name='bids[]']");
 		var userBidCount = document.getElementById("userBidCount");
 		if(parseInt(userBidCount.innerHTML) == 0){
@@ -150,6 +159,21 @@
 	}
 
 	$(document).ready(function(){
+
+//alert("JS WORKS ON THIS DEVICE");
+/*
+		var offset = $('#gameProgress').offset();  
+		    $(window).scroll(function () {    
+			var scrollTop = $(window).scrollTop(); 
+			// check the visible top of the browser     
+			if (offset.top < scrollTop) {
+			    $('#gameProgress').addClass('fixed'); 
+			} else {
+			    $('#gameProgress').removeClass('fixed');   
+			}
+		    }); 
+*/
+		unlockSubmit();
 	//	attemptClearBoard();
 //		announceValues();
 		$('[id^=box_]').click(function() {
@@ -176,17 +200,24 @@
 				type : "POST",
 				data : { productID : prod, userBids : userBidArray},
 				success : function(formHandlerData){
+
 					if(formHandlerData.oldLUB != null){
-alert("bids found");
 
 						document.getElementById(formHandlerData.oldLUB).className = "myButton btn sharp btn-warning disabled";
 
                                         }
+					if(formHandlerData.newLUB != null){
+
+						document.getElementById(formHandlerData.newLUB).className= "myButton btn sharp btn-success disabled";
+					}
 
 
 //                         alert("BIDS SUBMITTED");
+					if(formHandlerData.test != null){
 
-					alert(formHandlerData.test);
+						alert(formHandlerData.test);
+						unlockSubmit();
+					}
 					if(formHandlerData.notEnuffTokens != null){
 
 						
@@ -197,10 +228,11 @@ alert("bids found");
 					checkUBs(formHandlerData.HUBs, formHandlerData.NUBs, formHandlerData.LUB);
 			//		alert(formHandlerData.LUB);
 			//		alert(formHandlerData.foundLUB);
+					unlockSubmit();
 					$('#results').html(formHandlerData.renderHtml);
 					lockSelectedBids();
-					$('#progressBar').style.width = formHandlerData.progress;	
-					$('#progressBar').innerHTML = formHandlerData.progress + '%';
+					document.getElementById('progressBar').style.width = formHandlerData.progress + '%';	
+					document.getElementById('progressBar').innerHTML = formHandlerData.progress + '%';
 				},
 				dataType : "json"
 			});
@@ -235,7 +267,7 @@ $db_control = new render_product($username, $dbname, $pwd, $selected_product_ID)
 
 ?>
 
-<div name="fourth_info" class="" id="results"></div>
+<!--<div name="fourth_info" class="" id="results"></div>-->
 </div>
 </body>
 

@@ -26,12 +26,12 @@
 	$secure_password = $_POST['securePassword'];
 	$email = $_POST['email'];	
 
-/*
+
 	echo "<p>" . $username . "</p>";
 	echo  "<p>" . $password . "</p>";
 	echo  "<p>" . $secure_password . "</p>";
 	echo "<p>" .  $email . "</p>";
-*/
+
 
 	if($password != $secure_password){
 

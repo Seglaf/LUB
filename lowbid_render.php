@@ -79,9 +79,9 @@ class render_product{
 		}
 	
 		
-
-		echo "<div class='progress'>
-		  <div id='progressBar' class='active progress-bar progress-bar-success progress-bar-striped' role='progressbar' aria-valuenow='s' aria-valuemin='0' aria-valuemax='100' style='width:$this->progress%;'>
+//POSSIBLY CHANGE COLOR OF PROGRESS BAR DEPENDING ON THE RESULTS OF THAT USER'S MOST RECENT BID.
+		echo "<div id='gameProgress' class='progress'>
+		  <div id='progressBar' class='active progress-bar progress-bar-info progress-bar-striped' role='progressbar' aria-valuenow='s' aria-valuemin='0' aria-valuemax='100' style='width:$this->progress%;'>
 		    $this->progress%
 		  </div>
 		</div>";
@@ -106,11 +106,13 @@ class render_product{
 	private function lock_user_selection($price, $HUBs, $NUBs, $LUB){
 //CHANGES ALL NECESSARY TILES OF SPECIFIC USER TO BID TYPE COLOR
 //CHANGE ONCE DOUBLE ARRAY IS TURNED TO DICTIONARY......
+
+		/*CONSIDER ADDING THIS BACK LATER
 		if($this->query_product_value("user_bid_count") == $this->query_product_value("bid_count")){
 			
 			return " '  disabled";
 		}
-
+		*/
 		if($this->user_ID == NULL){
 
 			return " btn-primary' disabled";
@@ -146,16 +148,24 @@ class render_product{
 			$winner->execute();
 			$winner = $winner->fetchColumn();
 
+			$winning_bid = $this->query_gameplay_value('bid_price', "bid_type='LUB' AND product_ID=$this->selected_product_ID;");
+			
 		    echo "<div class='center-y row'>
-			<div class='col-md-4'>
+			<div class='col-md-12'>
 				<div class='animated bounceInDown container panel panel-warning' style='z-index:1000; position: fixed; '>
-			<h2> WINNER IS $winner </h2>
-			</div>
+			<h2> WINNER IS $winner, WINNING BID $winning_bid</h2>";
+//ADD MORE CONDITIONS FOR WINNER
+			if($winner == $this->username){
+				echo "<h3>
+					PLEASE CLICK <a href='/lowbid/lowbid_purchase_product.php/'>HERE</a> TO CLAIM PURCHASE
+				</h3>";
+			}
+			echo "</div>
 			</div>
 			</div> ";			
 		}
 		echo "<form method='POST' class='bidform' id='bidform'>";
-		echo "<input type='submit' class='btn btn-block btn-lg btn-success' id='submitBidForm' name='bid' value='bid'/>";
+		echo "<input type='submit' class='btn btn-block btn-lg btn-success'  id='submitBidForm' name='bid' value='bid'/>";
 		echo "<div class='table-responsive'>";
 		echo "<table class='table'>";
 		for($i = 0; $i < $total_elements; $i++){//$total_rows; $i++){
@@ -184,7 +194,7 @@ class render_product{
 		echo "</div>";
 //CHANGE TO STATIC ENDGAME DIV ONCE 100%
 		echo "<input type='hidden' id='productID' name='productID' value='" . $this->selected_product_ID . "' />";
-		echo "<input type='submit' class='btn btn-block btn-lg btn-success' id='submitBidForm' name='bid' value='bid'/>";
+		echo "<input type='submit' class='btn btn-block btn-lg btn-success' id='submitBidForm_2' name='bid' value='bid'/>";
 		echo "</form>"; 
 		echo "</div>";
 	}
@@ -207,16 +217,31 @@ class render_product{
 			<span class='icon-bar'></span>
 			<span class='icon-bar'></span>
 		      </button>
-		      <a class='navbar-brand' href='#'>Brand</a>
+		      <a class='navbar-brand' href='#'>LowBid</a>
 		    </div>";
 
 	}	
 
 	private function render_header(){
 	//add image to account tab
-		echo "<div class='navbar navbar-default'>";
+		echo "<nav class='navbar navbar-default'>";
 		echo " <div class='container-fluid'>";
-		echo "	<div id='navbar' class='navbar-collapse collapse'>
+
+		echo "<div class='navbar-header'>
+		      <button type='button' class='navbar-toggle collapsed' data-toggle='collapse' data-target='#collapsableNavbar' aria-expanded='false'>
+			<span class='sr-only'>Toggle navigation</span>
+			<span class='icon-bar'></span>
+			<span class='icon-bar'></span>
+			<span class='icon-bar'></span>
+		      </button>
+		      <a class='navbar-brand' href='#'>LowBid</a>
+		    </div>";
+
+
+
+
+
+		echo "	<div id='collapsableNavbar' class='navbar-collapse collapse'>
 			    <ul class='nav navbar-nav'>
 		<!-- CHANGE HREFS LATER!!! MAKE SURE THIS NAVBAR MAKES SENSE-->
 			      <li class='active'><a href='/lowbid/lowbid_login.php/'>Home</a></li>
@@ -237,7 +262,7 @@ class render_product{
 				  </ul>
 			  </div>
 		</div>";
-		echo "</div>";
+		echo "</nav>";
 		if($this->user_ID == NULL){
 //Login prompt for guest accessing user pages
 		echo "<div id='loginPrompt notLoggedIn' class='container'>
@@ -259,12 +284,13 @@ class render_product{
 			<div class='row'>
 				<input class='col-md-4 col-md-offset-4 btn btn-primary' type='submit' id='loginButton' value='Login'  >	
 			</div>
-			</form>
+			</form>";
 
-			<h5 class='text-center'><a onclick='makeAccount()' href='#' >Create an Account</a></h5>
+//MAKE AN ACCOUNT CONTAINER
+			echo "<h5 class='text-center'><a onclick='makeAccount()' href='#' >Create an Account</a></h5>
 			
 		<div id='makeAccount' class='form animated bounceInUp' style='display: none;'>
-			<form id='accountForm' action='/lowbid/lowbid_create_account.php' method='POST' >
+			<form id='accountForm' action='/lowbid/lowbid_login.php/?action=createAccount' method='POST' >
 				<input type='text' name='username' placeholder='Username' /> 
 				<input type='password' name='password' placeholder='Password' /> 
 				<input type='password' name='securePassword' placeholder='Repeat Password' /> 
@@ -317,7 +343,7 @@ class render_product{
 		echo "<div class='row'>";
 		foreach($array_display as $prod){
 			echo "<a class='' href='/lowbid/lowbid_product.php/?product=$prod'>";
-			echo "<div id='product_$prod' class='col-md-4 panel panel-default'>";
+			echo "<div id='product_$prod' class='col-xs-4 col-md-4 panel panel-default'>";
 			echo "	<div class='btn-block hero-feature thumbnail' syle='border-color: none !important;'>";
 							
 			echo	"<img src='http://placehold.it/800x500' alt=''>
@@ -368,6 +394,13 @@ class render_product{
 		$this->user_previous_bids = unserialize($query->fetchColumn());
 	}
 
+	private function query_gameplay_value($column, $search){
+
+		$query = $this->db->prepare("SELECT $column FROM gameplay WHERE $search;");
+		$query->execute();
+		return $query->fetchColumn();
+	}
+
 	private function query_product_value($column){
 
 		$query = $this->db->prepare("SELECT $column FROM product WHERE product_id=" . $this->selected_product_ID . ";");
@@ -411,28 +444,28 @@ class render_product{
 					$product_info = $query->fetch();				
 				
 					$this->progress = ceil(($product_info['user_bid_count'] / $product_info['bid_count']) * 100); 
-					echo "<div class='col-md-4 col-sm-8 hero-feature'>
+					echo "<div class='col-md-4 col-sm-4 col-xs-4 hero-feature'>
 						<div class='thumbnail'>
 						<img src='http://placehold.it/800x500' alt=''>";
 
 						echo "<div class='row'>";
-						echo "<div class='caption'>";
+						echo "<div class='col-md-12 col-xs-12 caption'>";
 						echo 	"<h3>" .  $product_info['product_name'] . "</h3>";
 						echo "</div>";
 						echo "</div>";
 
 					echo "<div class='row'>";
-					echo 	"<div class='col-md-3 panel-body'>";
+					echo 	"<div class='col-xs-3 col-md-3 panel-body'>";
 					echo		"MIN: " . $product_info['range_min'];
 					echo 	"</div>";
-					echo 	"<div class='col-md-6 panel-body'>";
+					echo 	"<div class='col-xs-6 col-md-6 panel-body'>";
 						echo "<div class='progress'>
 						  <div id='progressBar' class='active progress-bar progress-bar-success progress-bar-striped' role='progressbar' aria-valuenow='s' aria-valuemin='0' aria-valuemax='100' style='width:$this->progress%;'>
 						    $this->progress%
 						  </div>
 						</div>";
 					echo 	"</div>";
-					echo 	"<div class='col-md-3 panel-body'>";
+					echo 	"<div class='col-xs-3 col-md-3 panel-body'>";
 					echo		"MAX: " . $product_info['range_max'];
 					echo 	"</div>";
 					echo "</div>";
@@ -441,12 +474,12 @@ class render_product{
 						echo "<a href='/lowbid/lowbid_product.php/?product=$render_count'>";
 						if($product_info['sold'] == 'NO'){
 
-							echo "<div class='col-md-2 col-md-offset-5 btn btn-info'>";
+							echo "<div class='col-xs-2 col-md-2 col-xs-offset-5 col-md-offset-5 btn btn-info'>";
 							echo 	"PLAY";
 							echo "</div>";
 						}else{
 
-							echo "<div class='col-md-2 col-md-offset-5 btn btn-success' disabled>";
+							echo "<div class='col-xs-2 col-md-2 col-xs-offset-5 col-md-offset-5 btn btn-success'>";
 							echo 	"SOLD";
 							echo "</div>";
 						}
